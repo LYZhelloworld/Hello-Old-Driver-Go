@@ -82,6 +82,8 @@ namespace HelloOldDriver
                 WorkerSupportsCancellation = true
             };
 
+            this.ScanProgress.Value = 0;
+
             bw.DoWork += new DoWorkEventHandler(delegate(object o, DoWorkEventArgs args)
             {
                 BackgroundWorker b = o as BackgroundWorker;
@@ -90,9 +92,11 @@ namespace HelloOldDriver
                 // Read RSS
                 List<string> pages = s.Scan();
                 // Update progress bar
-                this.ScanProgress.Minimum = 0;
-                this.ScanProgress.Maximum = pages.Count;
-                this.ScanProgress.Value = 0;
+                // Do in UI thread
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    this.ScanProgress.Maximum = pages.Count;
+                });
 
                 if(b.CancellationPending)
                 {
