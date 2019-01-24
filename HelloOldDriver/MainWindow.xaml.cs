@@ -54,14 +54,7 @@ namespace HelloOldDriver
         // Set availability of pagination buttons
         private void SetPagination()
         {
-            if(page > 1)
-            {
-                this.PrevButton.IsEnabled = true;
-            }
-            else
-            {
-                this.PrevButton.IsEnabled = false;
-            }
+            this.PrevButton.IsEnabled = page > 1 ? true : false;
             this.NextButton.IsEnabled = true;
         }
 
@@ -89,17 +82,23 @@ namespace HelloOldDriver
                 WorkerSupportsCancellation = true
             };
 
-            // Read RSS
-            List<string> pages = s.Scan();
-            // Update progress bar
-            this.ScanProgress.Minimum = 0;
-            this.ScanProgress.Maximum = pages.Count;
-            this.ScanProgress.Value = 0;
-
             bw.DoWork += new DoWorkEventHandler(delegate(object o, DoWorkEventArgs args)
             {
                 BackgroundWorker b = o as BackgroundWorker;
                 int progress = 0;
+
+                // Read RSS
+                List<string> pages = s.Scan();
+                // Update progress bar
+                this.ScanProgress.Minimum = 0;
+                this.ScanProgress.Maximum = pages.Count;
+                this.ScanProgress.Value = 0;
+
+                if(b.CancellationPending)
+                {
+                    args.Cancel = true;
+                    return;
+                }
 
                 foreach (string pageLink in pages)
                 {
@@ -147,14 +146,14 @@ namespace HelloOldDriver
             {
                 // Disable stop button
                 SetStopStatus(false);
-                // Enable start button
-                SetStartStatus(true);
                 // Push the progress bar to 100% (even if it is cancelled)
                 App.Current.Dispatcher.Invoke(() =>
                 {
                     this.ScanProgress.Value = this.ScanProgress.Maximum;
                     SetPagination();
                 });
+                // Enable start button
+                SetStartStatus(true);
             });
 
             bw.RunWorkerAsync();
@@ -166,11 +165,13 @@ namespace HelloOldDriver
         {
             // Disable stop button before cancelling
             SetStopStatus(false);
-            bw.CancelAsync();
+            if(bw != null) bw.CancelAsync();
         }
 
         private void PrevButton_Click(object sender, RoutedEventArgs e)
         {
+            // Go to previous page
+            // If the page==1, ignore it (and the button should be disabled)
             if(page > 1)
             {
                 page--;
@@ -180,6 +181,7 @@ namespace HelloOldDriver
 
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
+            // Go to next page
             page++;
             StartButton_Click(sender, e);
         }
@@ -229,7 +231,10 @@ namespace HelloOldDriver
     {
         private readonly string resultText;
         private readonly bool isContentOnly;
-        private static readonly string MAGNET_PREFIX = "magnet:?xt=urn:btih:";
+        private const string MAGNET_PREFIX = "magnet:?xt=urn:btih:";
+        private const string REGEX_MAGNET = @"[0-9a-fA-F]{40}";
+        private const string REGEX_CONTENT = @"\<div(?:\s+?)class=""entry-content""(?:\s*?)\>(?<content>.*?)\<div(?:\s+?)class=""same_cat_posts""(?:\s*?)\>";
+        private const string REGEX_TITLE = @"\<title\>(?<title>.+?)\</title\>";
 
         public Analyzer(string resultText, bool isContentOnly)
         {
@@ -246,7 +251,7 @@ namespace HelloOldDriver
                 // Find the content part
                 // There are false strings that are not magnet links but do not appear in the content part
                 // <div class="entry-content">...<div class="same_cat_posts">
-                Regex rxContent = new Regex(@"\<div(?:\s+?)class=""entry-content""(?:\s*?)\>(?<content>.*?)\<div(?:\s+?)class=""same_cat_posts""(?:\s*?)\>", RegexOptions.Singleline);
+                Regex rxContent = new Regex(REGEX_CONTENT, RegexOptions.Singleline);
                 var match = rxContent.Match(this.resultText);
                 if(match.Success)
                 {
@@ -258,7 +263,7 @@ namespace HelloOldDriver
                 }
             }
             // Find 40-character magnet links
-            Regex rxMagnetLinks = new Regex(@"[0-9a-fA-F]{40}");
+            Regex rxMagnetLinks = new Regex(REGEX_MAGNET);
             var matches = rxMagnetLinks.Matches(newResultText);
             var result = new List<string>();
             for(int i = 0; i < matches.Count; i++)
@@ -272,7 +277,7 @@ namespace HelloOldDriver
         public string GetTitle()
         {
             // Find <title>...</title>
-            Regex rxTitle = new Regex(@"\<title\>(?<title>.+?)\</title\>");
+            Regex rxTitle = new Regex(REGEX_TITLE);
             var match = rxTitle.Match(this.resultText);
             if(match.Success)
             {
@@ -294,6 +299,9 @@ namespace HelloOldDriver
 
         public RssScanner(string domain, string protocol, int page = 1)
         {
+            // Protocol should be "http" or "https"
+            // Url will be <protocol>://<domain>/wp/?feed=rss&paged=<page>
+            // Or <protocol>://<domain>/wp/?feed=rss if page=1
             var url = string.Format("{0}://{1}/wp/?feed=rss", protocol, domain);
             if(page > 1)
             {
@@ -304,6 +312,7 @@ namespace HelloOldDriver
 
         public List<string> Scan()
         {
+            // Scan the RSS feed
             try
             {
                 XmlReader reader = XmlReader.Create(this.url);
@@ -318,12 +327,14 @@ namespace HelloOldDriver
             }
             catch (FileNotFoundException)
             {
+                // 404 or network problem
                 return new List<string>();
             }
         }
 
         public string ScanPage(string fullUrl)
         {
+            // Scan each page
             WebClient client = new WebClient();
             try
             {
@@ -336,6 +347,7 @@ namespace HelloOldDriver
             }
             catch (WebException)
             {
+                // 404 or network problem
                 return "";
             }
         }
