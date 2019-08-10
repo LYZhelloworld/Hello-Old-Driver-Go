@@ -3,38 +3,40 @@ package scanner
 import "testing"
 
 func TestScannerCreation(t *testing.T) {
-	s := Scanner(Config{"liuli.uk", "http"}, 10000, 10010)
-	if s.config.Domain != "liuli.uk" {
+	s := Scanner("liuli.uk", "http")
+	if s.Domain != "liuli.uk" {
 		t.Errorf("Assertion failed: Domain != liuli.uk")
 	}
-	if s.config.Protocol != "http" {
+	if s.Protocol != "http" {
 		t.Errorf("Assertion failed: Protocol != http")
 	}
-	if s.start != 10000 {
-		t.Errorf("Assertion failed: start != 10000")
+}
+
+func TestFeed(t *testing.T) {
+	s := Scanner("liuli.uk", "http")
+	page := s.GetFeed(1)
+	t.Logf("url: %s\nSucceeded: %t\nlen(Content): %d",
+		page.Url, page.Succeeded, len(page.Content))
+	if page.Url != "http://liuli.uk/wp/?feed=rss" {
+		t.Errorf("Url is incorrect.")
 	}
-	if s.end != 10010 {
-		t.Errorf("Assertion failed: end != 10010")
+	page = s.GetFeed(2)
+	t.Logf("url: %s\nSucceeded: %t\nlen(Content): %d",
+		page.Url, page.Succeeded, len(page.Content))
+	if page.Url != "http://liuli.uk/wp/?feed=rss&paged=2" {
+		t.Errorf("Url is incorrect.")
 	}
 }
 
-func TestOnePage(t *testing.T) {
-	s := Scanner(Config{"liuli.uk", "http"}, 72916, 72916)
-	s.Start()
-	page := <-s.Next
-	
-	t.Logf("url: %s", page.Url)
-	t.Logf("Succeeded: %t", page.Succeeded)
-	t.Logf("len(Content): %d", len(page.Content))
-}
-
-func TestMultiplePages(t *testing.T) {
-	s := Scanner(Config{"liuli.uk", "http"}, 72910, 72919)
-	s.Start()
-	for i := 72910; i <= 72919; i++ {
-		page := <-s.Next
-		
+func TestPages(t *testing.T) {
+	s := Scanner("liuli.uk", "http")
+	channel := make(chan Page)
+	s.GetPages([]string {
+		"https://www.liuli.uk/wp/72842.html",
+		"https://www.liuli.uk/wp/72837.html"}, channel)
+	for i := 0; i < 2; i++ {
+		page := <-channel
 		t.Logf("url: %s\nSucceeded: %t\nlen(Content): %d",
-				page.Url, page.Succeeded, len(page.Content))
+			page.Url, page.Succeeded, len(page.Content))
 	}
 }

@@ -8,44 +8,48 @@ import (
 const (
 	magnetPrefix string = "magnet:?xt=urn:btih:"
 	regexTitle string = `(?s)<title>(.+?)</title>`
-	regexContent string = `(?s)<div(?:\s+?)class="entry-content"(?:\s*?)>` +
-		`(.*?)</div><!--(?:\s*?).entry-content(?:\s*?)-->`
+	regexContent string = `(?s)<div\s+class="entry-content"\s*?>` +
+		`(.*?)</div><!--\s*?.entry-content\s*?-->`
 	regexMagnet40 string = `(?s)[^0-9a-fA-F]([0-9a-fA-F]{40})[^0-9a-fA-F]`
 	regexMagnet32 string = `(?s)[^0-9a-fA-F]([0-9a-fA-F]{32})[^0-9a-fA-F]`
+	
+	regexFeedItem string = `(?s)<item>.*?` +
+		`<title>(.*?)</title>\s*?<link>(.*?)</link>` +
+		`.*?</item>`
 )
 
-type Analyzer struct {
-	ContentOnly bool
+type FeedItem struct {
+	Title string
+	Link string
 }
 
-func (a Analyzer) GetMagnetLinks(text string) (result []string) {
+func GetMagnetLinks(text string) (result []string) {
 	var r *regexp.Regexp
-	var match [][]string
+	var match []string
+	var matchAll [][]string
 	
-	if a.ContentOnly {
-		r = regexp.MustCompile(regexContent)
-		match := r.FindStringSubmatch(text)
-		if match != nil {
-			text = match[1]
-		} else {
-			return make([]string, 0)
-		}
+	r = regexp.MustCompile(regexContent)
+	match = r.FindStringSubmatch(text)
+	if match != nil {
+		text = match[1]
+	} else {
+		return make([]string, 0)
 	}
 	
 	result = make([]string, 0)
 	
 	r = regexp.MustCompile(regexMagnet40)
-	match = r.FindAllStringSubmatch(text, -1)
-	if match != nil {
-		for _, v := range match {
+	matchAll = r.FindAllStringSubmatch(text, -1)
+	if matchAll != nil {
+		for _, v := range matchAll {
 			result = append(result, v[1])
 		}
 	}
 	
 	r = regexp.MustCompile(regexMagnet32)
-	match = r.FindAllStringSubmatch(text, -1)
-	if match != nil {
-		for _, v := range match {
+	matchAll = r.FindAllStringSubmatch(text, -1)
+	if matchAll != nil {
+		for _, v := range matchAll {
 			result = append(result, v[1])
 		}
 	}
@@ -57,7 +61,7 @@ func (a Analyzer) GetMagnetLinks(text string) (result []string) {
 	return
 }
 
-func (a Analyzer) GetPageTitle(text string) string {
+func GetPageTitle(text string) string {
 	r := regexp.MustCompile(regexTitle)
 	match := r.FindStringSubmatch(text)
 	if match != nil {
@@ -65,4 +69,20 @@ func (a Analyzer) GetPageTitle(text string) string {
 	} else {
 		return ""
 	}
+}
+
+func GetFeedItems(text string) (result []FeedItem) {
+	r := regexp.MustCompile(regexFeedItem)
+	matchAll := r.FindAllStringSubmatch(text, -1)
+	
+	result = make([]FeedItem, 0)
+	if matchAll != nil {
+		for _, v := range matchAll {
+			if len(v) == 3 {
+				result = append(result, FeedItem{v[1], v[2]})
+			}
+		}
+	}
+	
+	return
 }
