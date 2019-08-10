@@ -1,10 +1,25 @@
 # Hello Old Driver (Go)
+
 ## Test
+Windows
+
+`test.cmd`
+
+Linux
+
 `./test.sh`
+
 ## Build
+Windows
+
+`build.cmd`
+
+Linux
+
 `./build.sh`
 
 The executable file will be in `bin` folder.
+
 ## Usage
 ```
 Usage: llss [-h] [-p protocol] [-d domain] [page]
