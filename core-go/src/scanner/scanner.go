@@ -24,7 +24,7 @@ func Scanner(domain string, protocol string) *scanner {
 	return s
 }
 
-func (s scanner) GetFeed(page int) *Page {
+func (s scanner) GetFeed(page int) Page {
 	var url string
 	if page == 1 {
 		url = fmt.Sprintf("%s://%s/wp/?feed=rss", s.Protocol, s.Domain)
@@ -32,13 +32,13 @@ func (s scanner) GetFeed(page int) *Page {
 		url = fmt.Sprintf("%s://%s/wp/?feed=rss&paged=%d", s.Protocol, s.Domain, page)
 	} else {
 		// Error
-		return nil
+		return Page{url, false, ""}
 	}
 	
 	resultChan := make(chan Page)
 	go visit(url, resultChan)
 	result := <-resultChan
-	return &result
+	return result
 }
 
 func (s scanner) GetPages(urls []string, channel chan Page) {
