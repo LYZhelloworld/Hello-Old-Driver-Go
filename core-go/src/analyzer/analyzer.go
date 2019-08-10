@@ -14,7 +14,7 @@ const (
 	regexMagnet32 string = `(?s)[^0-9a-fA-F]([0-9a-fA-F]{32})[^0-9a-fA-F]`
 	
 	regexFeedItem string = `(?s)<item>.*?` +
-		`<title>(.*?)</title>\s*?<link>(.*?)</link>` +
+		`<title>.*?</title>\s*?<link>(.*?)</link>` +
 		`.*?</item>`
 )
 
@@ -71,15 +71,15 @@ func GetPageTitle(text string) string {
 	}
 }
 
-func GetFeedItems(text string) (result []FeedItem) {
+func GetFeedItems(text string) (result []string) {
 	r := regexp.MustCompile(regexFeedItem)
 	matchAll := r.FindAllStringSubmatch(text, -1)
 	
-	result = make([]FeedItem, 0)
+	result = make([]string, 0)
 	if matchAll != nil {
 		for _, v := range matchAll {
-			if len(v) == 3 {
-				result = append(result, FeedItem{v[1], v[2]})
+			if len(v) == 2 {
+				result = append(result, v[1])
 			}
 		}
 	}

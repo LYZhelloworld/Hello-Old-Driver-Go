@@ -58,10 +58,10 @@ func TestFeedItems(t *testing.T) {
 		t.Errorf("Count of item is not correct.")
 	}
 	for _, item := range result {
-		t.Logf("Title: %s\nLink: %s", item.Title, item.Link)
-		if item.Title == "This title should not be matched" ||
-		 	item.Title != "Test 1" &&
-			item.Title != "Test 2" {
+		t.Logf("Link: %s", item)
+		if item == "https://www.liuli.uk/wp" ||
+		 	item != "https://www.liuli.uk/wp/12345.html" &&
+			item != "https://www.liuli.uk/wp/67890.html" {
 			t.Errorf("Wrong item is matched.")
 		}
 	}
