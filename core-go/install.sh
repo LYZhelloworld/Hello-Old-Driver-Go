@@ -1,3 +1,3 @@
 #/bin/sh
-export GOPATH=$(pwd)
+export GOPATH=$PWD
 go install llss
