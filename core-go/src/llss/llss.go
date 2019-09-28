@@ -10,6 +10,7 @@ import (
 import (
 	"scanner"
 	"analyzer"
+	"domain_scanner"
 )
 
 const channelSize int = 16
@@ -59,7 +60,7 @@ func checkArgs() (protocol string, domain string, page int, ok bool) {
 	
 	flag.StringVar(&protocol, "p", "https",
 		"Protocol used to get the feed, like \"http\" or \"https\"")
-	flag.StringVar(&domain, "d", "liuli.uk",
+	flag.StringVar(&domain, "d", "",
 		"Domain used to get the feed")
 	flag.BoolVar(&help, "h", false, "Show help")
 	flag.Usage = usage
@@ -70,6 +71,16 @@ func checkArgs() (protocol string, domain string, page int, ok bool) {
 		ok = false
 		return
 	}
+	
+	if domain == "" {
+		domain = domain_scanner.GetDomain()
+		if domain == "" {
+			fmt.Fprintf(os.Stderr, "Error when retrieving domain. Stop.\n")
+			ok = false
+			return
+		}
+	}
+	
 	args := flag.Args()
 	if len(args) == 0 {
 		page = 1
@@ -77,7 +88,7 @@ func checkArgs() (protocol string, domain string, page int, ok bool) {
 		page, err = strconv.Atoi(args[0])
 		if err != nil ||
 			(err == nil && page <= 0) {
-			fmt.Fprintf(os.Stderr, "Invalid page number")
+			fmt.Fprintf(os.Stderr, "Invalid page number\n")
 			flag.Usage()
 			ok = false
 			return
