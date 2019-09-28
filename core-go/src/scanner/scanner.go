@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type scanner struct {
+type Scanner struct {
 	Domain string
 	Protocol string
 }
@@ -17,14 +17,7 @@ type Page struct {
 	Content string
 }
 
-func Scanner(domain string, protocol string) *scanner {
-	s := new(scanner)
-	s.Domain = domain
-	s.Protocol = protocol
-	return s
-}
-
-func (s scanner) GetFeed(page int) Page {
+func (s Scanner) GetFeed(page int) Page {
 	var url string
 	if page == 1 {
 		url = fmt.Sprintf("%s://%s/wp/?feed=rss", s.Protocol, s.Domain)
@@ -41,7 +34,7 @@ func (s scanner) GetFeed(page int) Page {
 	return result
 }
 
-func (s scanner) GetPages(urls []string, channel chan Page) {
+func (s Scanner) GetPages(urls []string, channel chan Page) {
 	for _, url := range urls {
 		go visit(url, channel)
 	}

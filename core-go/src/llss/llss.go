@@ -21,7 +21,7 @@ func main() {
 		return
 	}
 	
-	s := scanner.Scanner(domain, protocol)
+	s := scanner.Scanner{domain, protocol}
 	page := s.GetFeed(p)
 	if page.Succeeded {
 		links := analyzer.GetFeedItems(page.Content)
