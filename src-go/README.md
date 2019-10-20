@@ -1,22 +1,12 @@
 # Hello Old Driver (Go)
 
 ## Test
-Windows
-
-`test.cmd`
-
-Linux
-
-`./test.sh`
+* Windows: `test.cmd`
+* Linux: `./test.sh`
 
 ## Build
-Windows
-
-`build.cmd`
-
-Linux
-
-`./build.sh`
+* Windows: `build.cmd`
+* Linux: `./build.sh`
 
 The executable file will be in `bin` folder.
 
@@ -27,7 +17,7 @@ Usage: llss [-h] [-p protocol] [-d domain] [page]
 
 Options:
   -d string
-        Domain used to get the feed (default "liuli.uk")
+        Domain used to get the feed (auto checks domain if not given)
   -h    Show help
   -p string
         Protocol used to get the feed, like "http" or "https" (default "https")
