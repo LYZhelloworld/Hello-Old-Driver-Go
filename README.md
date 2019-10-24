@@ -3,15 +3,30 @@ A LLSS Reader
 
 Inspired by [Chion82/hello-old-driver](https://github.com/Chion82/hello-old-driver).
 
-## Test
-* Windows: `test.cmd`
-* Linux: `./test.sh`
-
 ## Build
-* Windows: `build.cmd`
-* Linux: `./build.sh`
+Output folder: `./bin`
 
-The executable file will be in `bin` folder.
+### Linux
+```
+make
+
+# To clean output folder
+make clean
+```
+### Windows
+```
+build
+```
+
+## Test
+### Linux
+```
+make test
+```
+### Windows
+```
+test
+```
 
 ## Usage
 ```
