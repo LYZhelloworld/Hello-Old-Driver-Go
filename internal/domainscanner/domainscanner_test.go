@@ -1,4 +1,4 @@
-package domain_scanner
+package domainscanner
 
 import "testing"
 

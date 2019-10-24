@@ -16,14 +16,14 @@ func TestFeed(t *testing.T) {
 	s := Scanner{"liuli.be", "http"}
 	page := s.GetFeed(1)
 	t.Logf("url: %s\nSucceeded: %t\nlen(Content): %d",
-		page.Url, page.Succeeded, len(page.Content))
-	if page.Url != "http://liuli.be/wp/?feed=rss" {
+		page.URL, page.Succeeded, len(page.Content))
+	if page.URL != "http://liuli.be/wp/?feed=rss" {
 		t.Errorf("Url is incorrect.")
 	}
 	page = s.GetFeed(2)
 	t.Logf("url: %s\nSucceeded: %t\nlen(Content): %d",
-		page.Url, page.Succeeded, len(page.Content))
-	if page.Url != "http://liuli.be/wp/?feed=rss&paged=2" {
+		page.URL, page.Succeeded, len(page.Content))
+	if page.URL != "http://liuli.be/wp/?feed=rss&paged=2" {
 		t.Errorf("Url is incorrect.")
 	}
 }
@@ -31,12 +31,12 @@ func TestFeed(t *testing.T) {
 func TestPages(t *testing.T) {
 	s := Scanner{"liuli.be", "http"}
 	channel := make(chan Page)
-	s.GetPages([]string {
+	s.GetPages([]string{
 		"https://www.liuli.be/wp/72842.html",
 		"https://www.liuli.be/wp/72837.html"}, channel)
 	for i := 0; i < 2; i++ {
 		page := <-channel
 		t.Logf("url: %s\nSucceeded: %t\nlen(Content): %d",
-			page.Url, page.Succeeded, len(page.Content))
+			page.URL, page.Succeeded, len(page.Content))
 	}
 }

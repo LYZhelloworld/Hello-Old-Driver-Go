@@ -7,12 +7,12 @@ import (
 
 const (
 	magnetPrefix string = "magnet:?xt=urn:btih:"
-	regexTitle string = `(?s)<title>(.+?)</title>`
+	regexTitle   string = `(?s)<title>(.+?)</title>`
 	regexContent string = `(?s)<div\s+class="entry-content"\s*?>` +
 		`(.*?)</div><!--\s*?.entry-content\s*?-->`
 	regexMagnet40 string = `(?s)[^0-9a-fA-F]([0-9a-fA-F]{40})[^0-9a-fA-F]`
 	regexMagnet32 string = `(?s)[^0-9a-fA-F]([0-9a-fA-F]{32})[^0-9a-fA-F]`
-	
+
 	regexFeedItem string = `(?s)<item>.*?` +
 		`<title>.*?</title>\s*?<link>(.*?)</link>` +
 		`.*?</item>`
@@ -20,14 +20,14 @@ const (
 
 type FeedItem struct {
 	Title string
-	Link string
+	Link  string
 }
 
 func GetMagnetLinks(text string) (result []string) {
 	var r *regexp.Regexp
 	var match []string
 	var matchAll [][]string
-	
+
 	r = regexp.MustCompile(regexContent)
 	match = r.FindStringSubmatch(text)
 	if match != nil {
@@ -35,9 +35,9 @@ func GetMagnetLinks(text string) (result []string) {
 	} else {
 		return make([]string, 0)
 	}
-	
+
 	result = make([]string, 0)
-	
+
 	r = regexp.MustCompile(regexMagnet40)
 	matchAll = r.FindAllStringSubmatch(text, -1)
 	if matchAll != nil {
@@ -45,7 +45,7 @@ func GetMagnetLinks(text string) (result []string) {
 			result = append(result, v[1])
 		}
 	}
-	
+
 	r = regexp.MustCompile(regexMagnet32)
 	matchAll = r.FindAllStringSubmatch(text, -1)
 	if matchAll != nil {
@@ -53,11 +53,11 @@ func GetMagnetLinks(text string) (result []string) {
 			result = append(result, v[1])
 		}
 	}
-	
+
 	for i, v := range result {
 		result[i] = strings.ToLower(magnetPrefix + v)
 	}
-	
+
 	return
 }
 
@@ -74,7 +74,7 @@ func GetPageTitle(text string) string {
 func GetFeedItems(text string) (result []string) {
 	r := regexp.MustCompile(regexFeedItem)
 	matchAll := r.FindAllStringSubmatch(text, -1)
-	
+
 	result = make([]string, 0)
 	if matchAll != nil {
 		for _, v := range matchAll {
@@ -83,6 +83,6 @@ func GetFeedItems(text string) (result []string) {
 			}
 		}
 	}
-	
+
 	return
 }

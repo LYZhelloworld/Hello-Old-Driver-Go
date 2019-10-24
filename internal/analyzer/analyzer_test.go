@@ -13,13 +13,13 @@ func TestMagnetLinks(t *testing.T) {
 		t.Errorf("%v", result)
 		return
 	} else {
-		if result[0] != 
+		if result[0] !=
 			"magnet:?xt=urn:btih:012345678901234567890123456789abcdefabcd" {
 			t.Errorf("Wrong magnet link is matched. Should be %s, got %s.",
 				"magnet:?xt=urn:btih:012345678901234567890123456789abcdefabcd",
 				result[0])
 		}
-		if result[1] != 
+		if result[1] !=
 			"magnet:?xt=urn:btih:012345678901234567890123456789ab" {
 			t.Errorf("Wrong magnet link is matched. Should be %s, got %s.",
 				"magnet:?xt=urn:btih:012345678901234567890123456789ab",
@@ -60,13 +60,12 @@ func TestFeedItems(t *testing.T) {
 	for _, item := range result {
 		t.Logf("Link: %s", item)
 		if item == "https://www.liuli.uk/wp" ||
-		 	item != "https://www.liuli.uk/wp/12345.html" &&
-			item != "https://www.liuli.uk/wp/67890.html" {
+			item != "https://www.liuli.uk/wp/12345.html" &&
+				item != "https://www.liuli.uk/wp/67890.html" {
 			t.Errorf("Wrong item is matched.")
 		}
 	}
 }
-
 
 const testText string = `<html>
 <head>

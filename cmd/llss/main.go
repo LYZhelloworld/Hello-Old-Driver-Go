@@ -1,27 +1,25 @@
 package main
 
 import (
-	"fmt"
-	"os"
 	"flag"
-	"strconv"
+	"fmt"
+	"llss/internal/analyzer"
+	"llss/internal/domainscanner"
+	"llss/internal/scanner"
+	"os"
 	"path/filepath"
-)
-import (
-	"scanner"
-	"analyzer"
-	"domain_scanner"
+	"strconv"
 )
 
 const channelSize int = 16
 
-func main() {	
+func main() {
 	protocol, domain, p, ok := checkArgs()
 	if !ok {
 		return
 	}
-	
-	s := scanner.Scanner{domain, protocol}
+
+	s := scanner.Scanner{Domain: domain, Protocol: protocol}
 	page := s.GetFeed(p)
 	if page.Succeeded {
 		links := analyzer.GetFeedItems(page.Content)
@@ -55,32 +53,32 @@ func print(title string, magnets []string) {
 func checkArgs() (protocol string, domain string, page int, ok bool) {
 	var (
 		help bool
-		err error
+		err  error
 	)
-	
+
 	flag.StringVar(&protocol, "p", "https",
 		"Protocol used to get the feed, like \"http\" or \"https\"")
 	flag.StringVar(&domain, "d", "",
 		"Domain used to get the feed")
 	flag.BoolVar(&help, "h", false, "Show help")
 	flag.Usage = usage
-	
+
 	flag.Parse()
 	if help {
 		flag.Usage()
 		ok = false
 		return
 	}
-	
+
 	if domain == "" {
-		domain = domain_scanner.GetDomain()
+		domain = domainscanner.GetDomain()
 		if domain == "" {
 			fmt.Fprintf(os.Stderr, "Error when retrieving domain. Stop.\n")
 			ok = false
 			return
 		}
 	}
-	
+
 	args := flag.Args()
 	if len(args) == 0 {
 		page = 1
@@ -94,7 +92,7 @@ func checkArgs() (protocol string, domain string, page int, ok bool) {
 			return
 		}
 	}
-	
+
 	ok = true
 	return
 }
@@ -102,7 +100,7 @@ func checkArgs() (protocol string, domain string, page int, ok bool) {
 func usage() {
 	fmt.Fprintf(os.Stderr, "Usage: %s [-h] [-p protocol] [-d domain] [page]\n",
 		filepath.Base(os.Args[0]))
-	fmt.Fprintf(os.Stderr, "  page: the page number of result. " +
+	fmt.Fprintf(os.Stderr, "  page: the page number of result. "+
 		"Must be greater than 0. Default value is 1.\n\n")
 	fmt.Fprintf(os.Stderr, "Options:\n")
 	flag.PrintDefaults()

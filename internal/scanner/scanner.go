@@ -1,22 +1,25 @@
 package scanner
 
 import (
-	"io/ioutil"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
+// Scanner crawls a domain for articles
 type Scanner struct {
-	Domain string
+	Domain   string
 	Protocol string
 }
 
+// Page contains the crawled URL, content and the flag whether it is successful
 type Page struct {
-	Url string
+	URL       string
 	Succeeded bool
-	Content string
+	Content   string
 }
 
+// GetFeed gets the RSS feed page content
 func (s Scanner) GetFeed(page int) Page {
 	var url string
 	if page == 1 {
@@ -27,13 +30,14 @@ func (s Scanner) GetFeed(page int) Page {
 		// Error
 		return Page{url, false, ""}
 	}
-	
+
 	resultChan := make(chan Page)
 	go visit(url, resultChan)
 	result := <-resultChan
 	return result
 }
 
+// GetPages gets all pages with URLs listed, asynchronously
 func (s Scanner) GetPages(urls []string, channel chan Page) {
 	for _, url := range urls {
 		go visit(url, channel)
@@ -57,9 +61,9 @@ func get(url string) (string, bool) {
 	if err != nil {
 		return "", false
 	}
-	
+
 	defer resp.Body.Close()
-	
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", false

@@ -1,4 +1,4 @@
-package domain_scanner
+package domainscanner
 
 import (
 	"io/ioutil"
@@ -10,6 +10,7 @@ import (
 const url = "http://acg.gy/"
 const re = "<a href=\"https?://([a-zA-Z0-9\\.]*)\">"
 
+// GetDomain gets the current domain name used
 func GetDomain() string {
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -21,16 +22,16 @@ func GetDomain() string {
 	if err != nil {
 		return ""
 	}
-	
+
 	defer resp.Body.Close()
-	
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return ""
 	}
 
 	content := string(body)
-	
+
 	r := regexp.MustCompile(re)
 	match := r.FindStringSubmatch(content)
 	if match != nil {
