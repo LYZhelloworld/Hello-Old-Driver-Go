@@ -1,3 +1,3 @@
 @echo off
-set GOPATH=%cd%
-go test -v scanner analyzer domain_scanner
+set GO111MODULE=on
+go test -v llss/internal/scanner llss/internal/analyzer llss/internal/domainscanner
