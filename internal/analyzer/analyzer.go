@@ -9,7 +9,7 @@ const (
 	magnetPrefix string = "magnet:?xt=urn:btih:"
 	regexTitle   string = `(?s)<title>(.+?)</title>`
 	regexContent string = `(?s)<div\s+class="entry-content"\s*?>` +
-		`(.*?)</div><!--\s*?.entry-content\s*?-->`
+		`(.*?)</div>\s*?<div\s*?class="entry-header"\s*?>`
 	regexMagnet40 string = `(?s)[^0-9a-fA-F]([0-9a-fA-F]{40})[^0-9a-fA-F]`
 	regexMagnet32 string = `(?s)[^0-9a-fA-F]([0-9a-fA-F]{32})[^0-9a-fA-F]`
 
